@@ -20,6 +20,8 @@ func RegisterDoctor(apiGroup *gin.RouterGroup, cfg config.Config, db *database.D
 
 	// Patient routes
 	authGroup.GET("/patients", doctorHandler.GetPatients) //done
+	// New endpoint to fetch patient by ID
+	authGroup.GET("/patients/:patient_id", doctorHandler.GetPatientByID)
 
 	// Prescription routes
 	authGroup.POST("/prescriptions/:patient_id", doctorHandler.CreatePrescription) //done
@@ -28,4 +30,6 @@ func RegisterDoctor(apiGroup *gin.RouterGroup, cfg config.Config, db *database.D
 	// Appointment routes
 	authGroup.GET("/appointments", doctorHandler.GetAppointments)               //done
 	authGroup.GET("/appointments/by-date", doctorHandler.GetAppointmentsByDate) //done
+	// New endpoint to fetch prescriptions by patient ID
+	authGroup.GET("/prescriptions/:patient_id", doctorHandler.GetPrescriptionsByPatient)
 }

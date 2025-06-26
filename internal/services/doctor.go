@@ -18,6 +18,8 @@ type DoctorService interface {
 	UpdatePrescription(patientID uuid.UUID, prescription *models.Prescription) error
 	GetAppointments(doctorID uuid.UUID) ([]models.Appointment, error)
 	GetAppointmentsByDate(doctorID uuid.UUID, date time.Time) ([]models.Appointment, error)
+	GetPatientByID(doctorID, patientID uuid.UUID) (*models.Patient, error)
+	GetPrescriptionsByPatient(doctorID, patientID uuid.UUID) ([]models.Prescription, error)
 }
 
 type doctorService struct {
@@ -118,4 +120,20 @@ func (s *doctorService) GetAppointmentsByDate(doctorID uuid.UUID, date time.Time
 		return nil, err
 	}
 	return appointments, nil
+}
+
+func (s *doctorService) GetPatientByID(doctorID, patientID uuid.UUID) (*models.Patient, error) {
+	var patient models.Patient
+	if err := s.db.Conn.Where("user_id = ? AND id = ?", doctorID, patientID).First(&patient).Error; err != nil {
+		return nil, err
+	}
+	return &patient, nil
+}
+
+func (s *doctorService) GetPrescriptionsByPatient(doctorID, patientID uuid.UUID) ([]models.Prescription, error) {
+	var prescriptions []models.Prescription
+	if err := s.db.Conn.Where("doctor_id = ? AND patient_id = ?", doctorID, patientID).Find(&prescriptions).Error; err != nil {
+		return nil, err
+	}
+	return prescriptions, nil
 }

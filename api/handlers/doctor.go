@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"fmt"
 	"hospital/internal/models"
 	"hospital/internal/services"
@@ -9,6 +10,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type DoctorHandler struct {
@@ -19,6 +21,40 @@ func NewDoctorHandler(doctorService services.DoctorService) *DoctorHandler {
 	return &DoctorHandler{
 		doctorService: doctorService,
 	}
+}
+
+func (h *DoctorHandler) GetPatientByID(c *gin.Context) {
+	patientIDStr := c.Param("patient_id")
+	patientID, err := uuid.Parse(patientIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid patient ID format"})
+		return
+	}
+
+	doctorID, exists := c.Get("user_id")
+
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+
+	id, err := uuid.Parse(doctorID.(string))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "error parsing doctor ID"})
+		return
+	}
+
+	patient, err := h.doctorService.GetPatientByID(id, patientID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "patient not found"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"patient": patient})
 }
 
 func (h *DoctorHandler) GetPatients(c *gin.Context) {
@@ -131,6 +167,40 @@ func (h *DoctorHandler) GetAppointments(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"appointments": appointments})
+}
+
+func (h *DoctorHandler) GetPrescriptionsByPatient(c *gin.Context) {
+	patientIDStr := c.Param("patient_id")
+	patientID, err := uuid.Parse(patientIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid patient ID format"})
+		return
+	}
+
+	doctorID, exists := c.Get("user_id")
+
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+
+	id, err := uuid.Parse(doctorID.(string))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "error parsing doctor ID"})
+		return
+	}
+
+	prescriptions, err := h.doctorService.GetPrescriptionsByPatient(id, patientID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "no prescriptions found for this patient"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"prescriptions": prescriptions})
 }
 
 func (h *DoctorHandler) GetAppointmentsByDate(c *gin.Context) {

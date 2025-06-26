@@ -19,7 +19,7 @@ func New(db *database.DB, cfg config.Config) *Api {
 
 	corsConfig := cors.Config{
 		AllowOrigins: []string{
-			"http://localhost:3000",
+			"http://localhost:3000", "http://localhost:8081",
 		},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},

@@ -32,4 +32,6 @@ func RegisterReceptionist(apiGroup *gin.RouterGroup, cfg config.Config, db *data
 	authGroup.GET("/patients/:patient_id/appointments/:appointment_id", receptionistHandler.GetAppointment)    //done but yk u goota manually select the appointment_id from client , not id but yk how itll be handled
 	authGroup.PUT("/patients/:patient_id/appointments/:appointment_id", receptionistHandler.UpdateAppointment) //done
 	authGroup.DELETE("/patients/:patient_id/appointments/:appointment_id", receptionistHandler.DeleteAppointment)
+	// New endpoint to fetch all appointments
+	authGroup.GET("/appointments", receptionistHandler.GetAllAppointments)
 }

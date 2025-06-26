@@ -28,6 +28,7 @@ type ReceptionistServiceInterface interface {
 	GetAppointment(appointmentID uuid.UUID) (*models.Appointment, error)
 	UpdateAppointment(patientID uuid.UUID, appointmentID uuid.UUID, parsedTime time.Time, status string, notes string) (*models.Appointment, error)
 	DeleteAppointment(appointmentID uuid.UUID) error
+	GetAllAppointments() ([]models.Appointment, error)
 }
 
 // ReceptionistService implements ReceptionistServiceInterface
@@ -292,6 +293,14 @@ func (s *ReceptionistService) UpdateAppointment(patientID, appointmentID uuid.UU
 	}
 
 	return &existing, nil
+}
+
+func (s *ReceptionistService) GetAllAppointments() ([]models.Appointment, error) {
+	var appointments []models.Appointment
+	if err := s.db.Conn.Find(&appointments).Error; err != nil {
+		return nil, err
+	}
+	return appointments, nil
 }
 
 func (s *ReceptionistService) DeleteAppointment(appointmentID uuid.UUID) error {

@@ -500,6 +500,21 @@ func (h *ReceptionistHandler) UpdateAppointment(c *gin.Context) {
 	})
 }
 
+func (h *ReceptionistHandler) GetAllAppointments(c *gin.Context) {
+	appointments, err := h.receptionistService.GetAllAppointments()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to fetch appointments",
+			"details": err.Error(),
+		})
+		return
+	}
+	
+	c.JSON(http.StatusOK, gin.H{
+		"appointments": appointments,
+	})
+}
+
 func (h *ReceptionistHandler) DeleteAppointment(c *gin.Context) {
 	appointmentIDStr := c.Param("appointment_id")
 	appointmentID, err := uuid.Parse(appointmentIDStr)

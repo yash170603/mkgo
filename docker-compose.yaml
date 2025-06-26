@@ -1,0 +1,47 @@
+services:
+
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: hospital
+      POSTGRES_PASSWORD: hospital123
+      POSTGRES_DB: hospital
+    ports:
+      - "5432:5432"
+    networks:
+      - hosptial_network
+    volumes:
+      - hospital_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hospital"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  dr:
+    build:
+      context: .
+      dockerfile: dockerfile
+    container_name: dr
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - hosptial_network
+    
+ 
+
+
+
+volumes:
+  hospital_data:
+    driver: local
+
+
+networks:
+  hosptial_network:
+    driver: bridge

@@ -1,0 +1,13 @@
+
+api:
+  port: 8080
+
+auth:
+  jwt_secret: 
+  jwt_issuer: 
+database:
+  host:
+  port: 
+  user: 
+  password: 
+  db: 
